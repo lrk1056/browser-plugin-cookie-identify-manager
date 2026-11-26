@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie 管理器</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部工具栏 -->
+        <header class="header">
+            <div class="header-top">
+                <span class="title">🍪 Cookie 管理器</span>
+                <div class="domain-info">
+                    <span id="domainModeText">精确匹配</span>: <span id="domainDisplay">加载中...</span>
+                    <button id="domainModeToggle" class="icon-btn-small" title="切换域名模式">🔄</button>
+                </div>
+            </div>
+            <div class="filter-section">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索 Cookie 名称...">
+                </div>
+                <div class="filter-options">
+                    <label><input type="checkbox" id="filterHttpOnly"> HttpOnly</label>
+                    <label><input type="checkbox" id="filterSecure"> Secure</label>
+                    <select id="filterSession">
+                        <option value="all">全部</option>
+                        <option value="session">显示 session</option>
+                        <option value="persistent">排除 session</option>
+                    </select>
+                </div>
+                <div class="sort-buttons">
+                    <button id="sortNameBtn" class="sort-btn" title="按名称排序">名称 ↕</button>
+                    <button id="sortExpiryBtn" class="sort-btn" title="按过期时间排序">过期 ↕</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Cookie 列表区域 -->
+        <main class="cookie-list-container">
+            <div class="list-header">
+                <div class="col-name" data-col="0">名称</div>
+                <div class="resizer" data-col="0"></div>
+                <div class="col-value" data-col="1">值</div>
+                <div class="resizer" data-col="1"></div>
+                <div class="col-domain" data-col="2">域名</div>
+                <div class="resizer" data-col="2"></div>
+                <div class="col-path" data-col="3">路径</div>
+                <div class="resizer" data-col="3"></div>
+                <div class="col-expiry" data-col="4">过期时间</div>
+                <div class="resizer" data-col="4"></div>
+                <div class="col-flags" data-col="5">标记</div>
+                <div class="resizer" data-col="5"></div>
+                <div class="col-actions" data-col="6">操作</div>
+            </div>
+            <div id="cookieList" class="cookie-list"></div>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">🍪</div>
+                <div class="empty-state-text">没有找到 Cookie</div>
+            </div>
+        </main>
+
+        <!-- 底部工具栏 -->
+        <footer class="footer">
+            <div class="stats">
+                <span id="cookieCount">0 / 0</span>
+            </div>
+            <div class="author-info">
+                <span>by liurenkui</span>
+            </div>
+            <div class="footer-actions">
+                <button id="refreshBtn" class="btn btn-secondary" title="刷新">🔄 刷新</button>
+                <button id="deleteAllBtn" class="btn btn-danger" title="删除当前列表所有 Cookie">🗑️ 一键删除</button>
+                <button id="addBtn" class="btn btn-primary">➕ 新增</button>
+                <button id="importBtn" class="btn btn-secondary">📥 导入</button>
+                <button id="exportBtn" class="btn btn-secondary">📤 导出</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div id="toast" class="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Cookie 编辑模态框 -->
+    <div id="cookieModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span id="modalTitle" class="modal-title">新增 Cookie</span>
+                <button class="modal-close" id="cancelCookieBtn">&times;</button>
+            </div>
+            <form id="cookieForm" class="modal-form">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">名称 *</label>
+                        <input type="text" id="cookieName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">值</label>
+                        <textarea id="cookieValue" class="form-textarea"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">域名 *</label>
+                            <input type="text" id="cookieDomain" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">路径</label>
+                            <input type="text" id="cookiePath" class="form-input" value="/">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">过期时间</label>
+                        <input type="datetime-local" id="cookieExpiration" class="form-input">
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label><input type="checkbox" id="cookieHttpOnly"> HttpOnly</label>
+                        <label><input type="checkbox" id="cookieSecure"> Secure</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="deleteCookieBtn" class="btn btn-danger" style="margin-right: auto; display: none;">删除</button>
+                    <button type="button" id="closeModalBtn" class="btn btn-secondary">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 导入模态框 -->
+    <div id="importModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">导入 Cookie</span>
+                <button class="modal-close" id="cancelImportBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">格式</label>
+                    <select id="importFormat" class="form-select">
+                        <option value="json">JSON</option>
+                        <option value="header">Header String</option>
+                        <option value="netscape">Netscape</option>
+                    </select>
+                </div>
+                <div class="form-group" id="importFormatHelp">
+                    <div class="format-help-text">
+                        <span class="help-label">JSON 格式：</span>支持标准 JSON 数组或对象，兼容压缩格式（有无空格均可）
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">数据</label>
+                    <textarea id="importData" class="form-textarea export-textarea" placeholder="粘贴 Cookie 数据..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeImportModalBtn" class="btn btn-secondary">取消</button>
+                <button id="confirmImportBtn" class="btn btn-primary">导入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导出模态框 -->
+    <div id="exportModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">导出 Cookie</span>
+                <button class="modal-close" id="closeExportBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">格式</label>
+                    <select id="exportFormatSelect" class="form-select">
+                        <option value="json">JSON</option>
+                        <option value="header">Header String</option>
+                        <option value="netscape">Netscape</option>
+                    </select>
+                </div>
+                <div class="form-group" id="headerLineBreakContainer" style="display: none;">
+                    <label><input type="checkbox" id="headerLineBreak"> 每个 Cookie 单独一行</label>
+                </div>
+                <div class="form-group" id="jsonCompressContainer" style="display: none;">
+                    <label><input type="checkbox" id="jsonCompress"> 压缩代码（无空格和换行）</label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">数据</label>
+                    <textarea id="exportData" class="form-textarea export-textarea" readonly></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeExportModalBtn" class="btn btn-secondary">关闭</button>
+                <button id="downloadExportBtn" class="btn btn-secondary">📥 下载文件</button>
+                <button id="copyExportBtn" class="btn btn-primary">复制到剪贴板</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup-main.js"></script>
+</body>
+</html>

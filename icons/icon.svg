@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <!-- 背景渐变 -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="50%" style="stop-color:#764ba2"/>
+      <stop offset="100%" style="stop-color:#6b5b95"/>
+    </linearGradient>
+
+    <!-- 饼干本体渐变 - 更有立体感 -->
+    <radialGradient id="cookieGrad" cx="35%" cy="25%" r="80%">
+      <stop offset="0%" style="stop-color:#fae8c8"/>
+      <stop offset="30%" style="stop-color:#f5deb3"/>
+      <stop offset="70%" style="stop-color:#e8c39e"/>
+      <stop offset="100%" style="stop-color:#d4a574"/>
+    </radialGradient>
+
+    <!-- 巧克力豆渐变 -->
+    <radialGradient id="chipGrad1" cx="25%" cy="25%" r="70%">
+      <stop offset="0%" style="stop-color:#795548"/>
+      <stop offset="100%" style="stop-color:#3e2723"/>
+    </radialGradient>
+
+    <!-- 阴影滤镜 -->
+    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 背景圆形 -->
+  <circle cx="64" cy="64" r="60" fill="url(#bgGrad)"/>
+
+  <!-- 饼干主体 - 带咬痕的圆形 -->
+  <path d="M 64 22
+           C 88 22, 108 38, 112 58
+           C 113 61, 110 63, 107 62
+           L 105 61
+           C 102 60, 99 63, 101 66
+           C 102 69, 100 72, 97 71
+           C 94 70, 92 73, 94 76
+           C 96 79, 94 82, 91 81
+           L 88 80
+           C 85 79, 83 82, 85 85
+           C 87 88, 85 91, 82 90
+           C 79 89, 77 92, 79 95
+           C 81 98, 79 101, 76 100
+           L 73 99
+           C 70 98, 68 101, 70 104
+           C 72 107, 70 110, 67 109
+           C 64 108, 62 111, 64 114
+           C 65 116, 64 117, 62 118
+           C 45 120, 28 110, 20 92
+           C 10 68, 20 36, 48 26
+           C 53 24, 59 22, 64 22 Z"
+        fill="url(#cookieGrad)"
+        filter="url(#dropShadow)"/>
+
+  <!-- 饼干边缘纹理 -->
+  <path d="M 35 38 Q 40 42 38 48" stroke="#c4956a" stroke-width="1" fill="none" opacity="0.4"/>
+  <path d="M 85 32 Q 82 40 88 45" stroke="#c4956a" stroke-width="1" fill="none" opacity="0.4"/>
+  <path d="M 95 65 Q 88 70 92 78" stroke="#c4956a" stroke-width="1" fill="none" opacity="0.4"/>
+  <path d="M 55 95 Q 62 92 70 96" stroke="#c4956a" stroke-width="1" fill="none" opacity="0.4"/>
+
+  <!-- 大巧克力豆 -->
+  <ellipse cx="45" cy="48" rx="8" ry="7" fill="url(#chipGrad1)" transform="rotate(-20 45 48)"/>
+  <ellipse cx="80" cy="42" rx="9" ry="8" fill="url(#chipGrad1)" transform="rotate(15 80 42)"/>
+  <ellipse cx="65" cy="75" rx="8" ry="7" fill="url(#chipGrad1)" transform="rotate(-5 65 75)"/>
+
+  <!-- 小巧克力豆 -->
+  <ellipse cx="92" cy="58" rx="5" ry="5" fill="url(#chipGrad1)"/>
+  <ellipse cx="38" cy="72" rx="6" ry="5" fill="url(#chipGrad1)" transform="rotate(30 38 72)"/>
+  <ellipse cx="78" cy="88" rx="5" ry="4" fill="url(#chipGrad1)" transform="rotate(45 78 88)"/>
+
+  <!-- 高光效果 -->
+  <ellipse cx="52" cy="35" rx="15" ry="10" fill="white" opacity="0.25"/>
+  <ellipse cx="48" cy="38" rx="8" ry="5" fill="white" opacity="0.4"/>
+</svg>
